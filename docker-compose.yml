@@ -1,0 +1,27 @@
+# Виви · продакшен (Docker Compose)
+# На сервере уже есть свой (хостовый) nginx + certbot и другие приложения,
+# поэтому НЕ занимаем порты 80/443. Наш стек слушает только 127.0.0.1:8080,
+# а хостовый nginx проксирует домен на него и терминирует TLS.
+# PostgreSQL уже стоит на сервере — контейнер БД не нужен.
+services:
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file: ./.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # PostgreSQL стоит на хосте, ходим напрямую
+    volumes:
+      - ./storage:/app/storage        # видео-сегменты и превью (персистентно)
+    expose:
+      - "8000"                        # только внутри сети compose
+
+  web:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:8080:80"           # только localhost; наружу проксирует хостовый nginx
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./storage/hls:/srv/hls:ro     # nginx отдаёт .ts/.jpg напрямую из тома

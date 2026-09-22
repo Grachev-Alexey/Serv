@@ -1,0 +1,16 @@
+# Системная зависимость (не pip): ffmpeg + ffprobe.
+#   Ubuntu:  sudo apt install ffmpeg
+#   Windows: статическая сборка, путь в .env (FFMPEG_BIN/FFPROBE_BIN)
+fastapi
+uvicorn[standard]
+python-multipart
+sqlalchemy>=2.0
+psycopg2-binary
+python-dotenv
+passlib
+pyjwt
+# Детекция движения в сегментах (запись по активности). headless — без GUI/GL-зависимостей.
+opencv-python-headless
+numpy
+# HTTP-клиент для Deepgram (транскрибация).
+httpx
